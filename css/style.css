@@ -72,6 +72,9 @@ ul{
 a{
   text-decoration: none;
 }
+.copyright a {
+	color: #ffd700;
+}
 img{
   max-width: 100%;
   height: auto;
@@ -311,9 +314,7 @@ nav img {
 .copyright {
 	font-size: 0.75rem;
 }
-.copyright a {
-	color: #ffd700;
-}
+
 
 /* ===== MEDIA QUERIES=====*/
 @media screen and (min-width: 768px) {
