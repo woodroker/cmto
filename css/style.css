@@ -311,6 +311,9 @@ nav img {
 .copyright {
 	font-size: 0.75rem;
 }
+.copyright a {
+	color: #ffd700;
+}
 
 /* ===== MEDIA QUERIES=====*/
 @media screen and (min-width: 768px) {
