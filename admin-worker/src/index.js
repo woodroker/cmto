@@ -525,23 +525,27 @@ async function syncBloggerSafe(env, productId) {
 // /api/products). Hanya sinkron item yang benar-benar baru/berubah/dihapus
 // dibanding sebelumnya — bukan upsert semua item tiap kali save.
 async function syncBloggerDiff(env, before) {
-  if (!env.BLOGGER_BLOG_ID || !env.BLOGGER_REFRESH_TOKEN || !env.BLOG_URL) return; // belum disetel
+  if (!env.BLOGGER_EMAIL || !env.RESEND_API_KEY) return; // belum disetel
   let after;
   try { ({ data: { items: after } } = await readCatalog(env)); } catch { return; }
   const beforeMap = new Map(before.map(p => [p.id, p]));
-  const afterIds = new Set(after.map(p => p.id));
   const errors = [];
 
-  for (const id of beforeMap.keys()) {
-    if (afterIds.has(id)) continue;
-    try { await bloggerDelete(env, id); } catch (e) { errors.push(`hapus ${id}: ${e.message}`); }
-  }
   for (const p of after) {
     const old = beforeMap.get(p.id);
-    if (old && JSON.stringify(old) === JSON.stringify(p)) continue;   // tidak berubah
-    try { await bloggerUpsert(env, p); } catch (e) { errors.push(`${p.id}: ${e.message}`); }
+    if (old && JSON.stringify(old) === JSON.stringify(p)) continue; // tidak berubah
+    try {
+      await kirimKeBlogger(env, {
+        judul: p.nama,
+        gambarUrl: p.gambar,
+        isi: p.deskripsi,
+      });
+    } catch (e) {
+      errors.push(`${p.id}: ${e.message}`);
+    }
   }
+
   if (errors.length) {
-    await notifyAdmins(env, `⚠️ Sinkron Blogger dari dashboard, ${errors.length} gagal:\n` + errors.slice(0, 10).join('\n'));
+    await notifyAdmins(env, `?? Kirim ke Blogger dari dashboard, ${errors.length} gagal:\n` + errors.slice(0, 10).join('\n'));
   }
 }
