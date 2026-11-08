@@ -1,0 +1,26 @@
+name: Auto Unzip File
+on: [push]
+permissions:
+  contents: write
+
+jobs:
+  unzip:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Extract ZIP File
+        uses: ihiroky/extract-action@v1
+        with:
+          file_path: cmto-app.zip
+          extract_dir: . # Ekstrak langsung ke folder utama repositori
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git rm cmto-app.zip
+          git add .
+          git commit -m "File ZIP berhasil diekstrak otomatis" || exit 0
+          git push

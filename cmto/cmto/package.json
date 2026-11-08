@@ -1,0 +1,8 @@
+{
+  "name": "cmto",
+  "private": true,
+  "scripts": {
+    "build": "mkdir -p css && tailwindcss -i styles/input.css -o css/app.css --minify"
+  },
+  "devDependencies": { "tailwindcss": "3.4.17" }
+}

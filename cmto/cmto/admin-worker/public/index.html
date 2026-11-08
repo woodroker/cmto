@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>CMTO · Dashboard Katalog</title>
+<style>
+:root{--bg:#0e0b08;--fg:#efe8dc;--mute:#9a8f80;--line:rgba(239,232,220,.14);--acc:#d9a441;--card:#19130e}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.4 system-ui,-apple-system,sans-serif}
+header{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+h1{font-size:18px;margin:0}
+button{font:inherit;background:transparent;color:var(--fg);border:1px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer}
+button:hover:not(:disabled){border-color:var(--acc);color:var(--acc)}
+button.primary{background:var(--acc);color:#0e0b08;border-color:var(--acc)}
+button.primary:hover:not(:disabled){color:#0e0b08;opacity:.9}
+button.danger:hover:not(:disabled){color:#e06c5a;border-color:#e06c5a}
+button:disabled{opacity:.35;cursor:default}
+input,textarea{font:inherit;width:100%;background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+main{padding:18px;max-width:1100px;margin:0 auto}
+.bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.bar input{max-width:280px}
+.mute{color:var(--mute);font-size:13px}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:10px 8px;border-top:1px solid var(--line);vertical-align:middle}
+th{color:var(--mute);font-weight:500;font-size:13px}
+td img{width:48px;height:48px;object-fit:cover;border-radius:8px;display:block}
+.actions{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:30px 14px;z-index:10}
+.overlay.on{display:flex}
+.modal{background:var(--bg);border:1px solid var(--line);border-radius:16px;padding:20px;width:min(560px,100%)}
+.grid{display:grid;gap:12px}
+label{display:grid;gap:5px;font-size:13px;color:var(--mute)}
+label.chk{display:flex;align-items:center;gap:8px;color:var(--fg)}
+label.chk input{width:auto}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#prev{width:100%;max-height:200px;object-fit:cover;border-radius:10px;display:none}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--line);padding:10px 16px;border-radius:999px;display:none;max-width:90vw}
+#toast.on{display:block}
+.login{max-width:360px;margin:14vh auto;display:none;gap:12px}
+.login.on{display:grid}
+#app{display:none}
+#app.on{display:block}
+@media(max-width:640px){.row2{grid-template-columns:1fr}.hide{display:none}}
+</style>
+</head>
+<body>
+<section class="login" id="login">
+  <h1>CMTO · Dashboard Katalog</h1>
+  <label>Token admin<input id="tok" type="password" autocomplete="current-password"></label>
+  <button class="primary" id="go">Masuk</button>
+</section>
+
+<div id="app">
+<header>
+  <h1>Dashboard Katalog <span class="mute" id="count"></span></h1>
+  <div class="actions">
+    <span class="mute" id="status"></span>
+    <button id="reload">Muat ulang</button>
+    <button id="logout">Keluar</button>
+    <button class="primary" id="save" disabled>Simpan ke situs</button>
+  </div>
+</header>
+<main>
+  <div class="bar">
+    <input id="q" type="search" placeholder="Cari nama, ID, kategori">
+    <button id="add">+ Tambah karya</button>
+  </div>
+  <table>
+    <thead><tr><th></th><th>Karya</th><th class="hide">Kategori</th><th class="hide">Harga</th><th class="hide">Beli</th><th></th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+</main>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2 id="mtitle" style="margin:0 0 14px;font-size:18px">Edit karya</h2>
+    <div class="grid">
+      <div class="row2">
+        <label>ID (huruf kecil, angka, -)<input id="f-id"></label>
+        <label>Kategori<input id="f-cat" list="cats"><datalist id="cats"></datalist></label>
+      </div>
+      <label>Nama<input id="f-name"></label>
+      <label>Deskripsi<textarea id="f-desc" rows="2"></textarea></label>
+      <div class="row2">
+        <label>Harga (kosong = Tanya harga)<input id="f-price" inputmode="numeric"></label>
+        <label class="chk"><input type="checkbox" id="f-buy"> Tampilkan tombol Buy</label>
+      </div>
+      <label>Link gambar (https)<input id="f-image"></label>
+      <img id="prev" alt="">
+      <label>Link marketplace (opsional)<input id="f-link"></label>
+      <label>Spesifikasi (satu baris per poin)<textarea id="f-specs" rows="3"></textarea></label>
+      <div class="actions" style="justify-content:flex-end">
+        <button id="cancel">Batal</button>
+        <button class="primary" id="apply">Terapkan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+let items = [], original = '', token = sessionStorage.getItem('cmto_token') || '', editIndex = -1;
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rp = n => n == null ? 'Tanya harga' : 'Rp ' + Number(n).toLocaleString('id-ID');
+const dirty = () => JSON.stringify(items) !== original;
+
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.classList.add('on');
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('on'), 2800);
+}
+
+async function api(method = 'GET', body) {
+  const r = await fetch('/api/products', {
+    method,
+    headers: { authorization: 'Bearer ' + token, 'content-type': 'application/json' },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const j = await r.json().catch(() => ({}));
+  if (r.status === 401) { logout(); throw new Error('Token salah'); }
+  if (!r.ok) throw new Error(j.error || 'Gagal (' + r.status + ')');
+  return j;
+}
+
+async function load() {
+  const d = await api();
+  items = d.items; original = JSON.stringify(items);
+  $('#cats').innerHTML = [...new Set(items.map(p => p.category))].map(c => `<option value="${esc(c)}">`).join('');
+  render();
+}
+
+function render() {
+  const q = $('#q').value.trim().toLowerCase();
+  const rows = items.map((p, i) => ({ p, i }))
+    .filter(({ p }) => !q || (p.name + ' ' + p.id + ' ' + p.category).toLowerCase().includes(q));
+  $('#rows').innerHTML = rows.map(({ p, i }) => `<tr>
+    <td><img src="${esc(p.image)}" alt=""></td>
+    <td><b>${esc(p.name)}</b><div class="mute">${esc(p.id)}</div></td>
+    <td class="hide">${esc(p.category)}</td>
+    <td class="hide">${rp(p.price)}</td>
+    <td class="hide">${p.buy ? 'Ya' : 'Tidak'}</td>
+    <td><div class="actions">
+      <button onclick="move(${i},-1)" ${i === 0 || q ? 'disabled' : ''} title="Naik">↑</button>
+      <button onclick="move(${i},1)" ${i === items.length - 1 || q ? 'disabled' : ''} title="Turun">↓</button>
+      <button onclick="openEdit(${i})">Edit</button>
+      <button class="danger" onclick="removeItem(${i})">Hapus</button>
+    </div></td></tr>`).join('') || `<tr><td colspan="6" class="mute">Tidak ada karya.</td></tr>`;
+  $('#count').textContent = `(${items.length} karya)`;
+  $('#save').disabled = !dirty();
+  $('#status').textContent = dirty() ? 'Ada perubahan belum disimpan' : 'Sudah tersimpan';
+}
+
+function move(i, d) {
+  const j = i + d; if (j < 0 || j >= items.length) return;
+  [items[i], items[j]] = [items[j], items[i]]; render();
+}
+
+function removeItem(i) {
+  if (!confirm(`Hapus "${items[i].name}"?`)) return;
+  items.splice(i, 1); render();
+}
+
+function openEdit(i) {
+  editIndex = i;
+  const p = i >= 0 ? items[i] : { id: '', name: '', category: '', desc: '', price: null, buy: true, image: '', link: '', specs: [] };
+  $('#f-id').value = p.id; $('#f-id').readOnly = i >= 0;
+  $('#f-name').value = p.name; $('#f-cat').value = p.category; $('#f-desc').value = p.desc;
+  $('#f-price').value = p.price ?? ''; $('#f-buy').checked = !!p.buy;
+  $('#f-image').value = p.image; $('#f-link').value = p.link || '';
+  $('#f-specs').value = (p.specs || []).join('\n');
+  previewImg();
+  $('#mtitle').textContent = i >= 0 ? 'Edit karya' : 'Tambah karya';
+  $('#overlay').classList.add('on');
+}
+
+function closeEdit() { $('#overlay').classList.remove('on'); }
+
+function previewImg() {
+  const u = $('#f-image').value.trim();
+  $('#prev').src = u; $('#prev').style.display = u ? 'block' : 'none';
+}
+
+function applyEdit() {
+  const priceRaw = $('#f-price').value.trim();
+  const p = {
+    id: $('#f-id').value.trim(),
+    name: $('#f-name').value.trim(),
+    category: $('#f-cat').value.trim() || 'Lainnya',
+    desc: $('#f-desc').value.trim(),
+    price: priceRaw === '' ? null : Number(priceRaw.replace(/[.\s]/g, '')),
+    buy: $('#f-buy').checked,
+    image: $('#f-image').value.trim(),
+    link: $('#f-link').value.trim() || undefined,
+    specs: $('#f-specs').value.split('\n').map(s => s.trim()).filter(Boolean),
+  };
+  if (!p.id || !p.name) return toast('ID dan nama wajib diisi');
+  if (!/^[a-z0-9-]+$/.test(p.id)) return toast('ID hanya boleh huruf kecil, angka, dan -');
+  if (editIndex < 0 && items.some(x => x.id === p.id)) return toast('ID sudah dipakai');
+  if (priceRaw !== '' && !Number.isInteger(p.price)) return toast('Harga harus angka');
+  if (editIndex < 0) items.push(p); else items[editIndex] = p;
+  closeEdit(); render();
+}
+
+async function save() {
+  $('#save').disabled = true; $('#status').textContent = 'Menyimpan…';
+  try {
+    await api('PUT', { items });
+    toast('Tersimpan. Situs diperbarui dalam beberapa menit ✔');
+    await load();
+  } catch (e) {
+    toast(e.message); render();
+  }
+}
+
+function logout() {
+  token = ''; sessionStorage.removeItem('cmto_token');
+  $('#app').classList.remove('on'); $('#login').classList.add('on');
+}
+
+async function enter() {
+  token = $('#tok').value.trim();
+  if (!token) return;
+  try {
+    await load();
+    sessionStorage.setItem('cmto_token', token);
+    $('#login').classList.remove('on'); $('#app').classList.add('on');
+  } catch (e) { toast(e.message); }
+}
+
+$('#go').onclick = enter;
+$('#tok').addEventListener('keydown', e => { if (e.key === 'Enter') enter(); });
+$('#q').oninput = render;
+$('#add').onclick = () => openEdit(-1);
+$('#cancel').onclick = closeEdit;
+$('#apply').onclick = applyEdit;
+$('#save').onclick = save;
+$('#f-image').oninput = previewImg;
+$('#reload').onclick = () => { if (dirty() && !confirm('Perubahan belum disimpan akan hilang. Lanjut?')) return; load().catch(e => toast(e.message)); };
+$('#logout').onclick = () => { if (dirty() && !confirm('Perubahan belum disimpan akan hilang. Keluar?')) return; logout(); };
+window.addEventListener('beforeunload', e => { if (dirty()) { e.preventDefault(); e.returnValue = ''; } });
+
+if (token) enter(); else $('#login').classList.add('on');
+</script>
+</body>
+</html>
