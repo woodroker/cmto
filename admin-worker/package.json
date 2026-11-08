@@ -6,7 +6,8 @@
     "deploy": "wrangler deploy",
     "tail": "wrangler tail",
     "kv:seen": "wrangler kv namespace create SEEN",
-    "secrets": "wrangler secret put ADMIN_TOKEN && wrangler secret put GITHUB_TOKEN && wrangler secret put TELEGRAM_BOT_TOKEN && wrangler secret put WEBHOOK_SECRET && wrangler secret put IG_ACCESS_TOKEN"
+    "secrets": "wrangler secret put ADMIN_TOKEN && wrangler secret put GITHUB_TOKEN && wrangler secret put TELEGRAM_BOT_TOKEN && wrangler secret put WEBHOOK_SECRET && wrangler secret put IG_ACCESS_TOKEN",
+    "secrets:blogger": "wrangler secret put BLOGGER_CLIENT_ID && wrangler secret put BLOGGER_CLIENT_SECRET && wrangler secret put BLOGGER_REFRESH_TOKEN"
   },
   "devDependencies": {
     "wrangler": "3.90.0"

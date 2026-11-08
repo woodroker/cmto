@@ -56,6 +56,36 @@ Cron tiap 30 menit cek postingan baru dari akun IG Business:
 - **Caption lain** → tetap seperti sebelumnya: admin dapat notifikasi berisi draft perintah `/tambah` untuk dikonfirmasi manual.
 - Run pertama (`seeded`) hanya menandai postingan lama sebagai sudah dilihat, tidak memicu auto-tambah maupun notifikasi.
 
+## Sinkron ke Blogger (SEO: 1 postingan per karya)
+Tiap kali karya ditambah/diubah/dihapus (lewat `/tambah`, `/ubah`, `/hapus`, atau auto-tambah dari IG), worker juga bikin/update/hapus 1 postingan asli di Blogger — supaya tiap produk punya halaman HTML sendiri yang gampang diindex Google (lihat juga `template/blogger-template.xml`, bagian `pageType == "item"`).
+
+**Opsional** — kalau 3 secret di bawah belum disetel, fitur ini otomatis dilewati (diam, tidak error), sisanya (Telegram, katalog, IG) tetap jalan normal.
+
+### Cara setup
+1. **Isi `wrangler.toml`**: ganti `BLOG_URL` (URL blog kamu, pakai domain custom kalau sudah pasang) dan `BLOGGER_BLOG_ID`.
+   - Blog ID: buka dashboard Blogger → pilih blog kamu → lihat URL address bar, formatnya `blogger.com/blog/posts/<BLOG_ID>` atau ada di `blogger.com/blog/.../<BLOG_ID>/...`.
+2. **Aktifkan Blogger API** di [Google Cloud Console](https://console.cloud.google.com/):
+   - Buat project baru (atau pakai yang ada) → menu *APIs & Services → Library* → cari **Blogger API v3** → Enable.
+3. **Buat OAuth Client ID**:
+   - *APIs & Services → Credentials → Create Credentials → OAuth client ID*.
+   - Jika diminta, setup dulu *OAuth consent screen* (pilih **External**, isi nama app seadanya, tambahkan akun Google kamu sendiri di bagian *Test users* — tidak perlu publish/verifikasi).
+   - Application type: **Desktop app**. Setelah dibuat, catat **Client ID** dan **Client Secret**.
+4. **Dapatkan Refresh Token** (sekali saja, pakai OAuth Playground):
+   - Buka [Google OAuth 2.0 Playground](https://developers.google.com/oauthplayground).
+   - Klik ikon gerigi ⚙️ di kanan atas → centang **Use your own OAuth credentials** → isi Client ID & Client Secret dari langkah 3.
+   - Di kolom kiri "Step 1", scroll/cari lalu isi manual: `https://www.googleapis.com/auth/blogger` → Authorize APIs.
+   - Login pakai akun Google yang punya akses ke blog-nya → izinkan.
+   - Di "Step 2", klik **Exchange authorization code for tokens** → catat **Refresh token** yang muncul (hanya muncul sekali, simpan baik-baik).
+5. **Set secret**: `npm run secrets:blogger` (akan tanya `BLOGGER_CLIENT_ID`, `BLOGGER_CLIENT_SECRET`, `BLOGGER_REFRESH_TOKEN` satu per satu).
+6. `npm run deploy` lagi supaya `BLOG_URL`/`BLOGGER_BLOG_ID` di `wrangler.toml` ikut ter-upload.
+7. Tes: `/ubah <id-produk-yang-sudah-ada> harga <angka>` lewat Telegram → cek apakah muncul postingan baru/ter-update di dashboard Blogger.
+
+Sinkron ini jalan dari semua jalur: Telegram (`/tambah`, `/ubah`, `/hapus`), auto-tambah IG, **dan** simpan dari dashboard web (hanya item yang berubah/baru/dihapus yang disinkron, bukan semua item tiap kali save).
+
+### Keterbatasan saat ini
+- Kategori/label produk dipakai sebagai label Blogger post juga.
+- Kalau post-nya dihapus manual langsung dari Blogger, worker akan otomatis bikin post baru lagi saat produk itu di-`/ubah` berikutnya (mapping lama tidak dipakai ulang).
+
 ## Catatan
 - Gambar harus link `https`. Untuk Dropbox pakai link share dengan `?raw=1`.
 - Hanya field yang dikenal yang disimpan. Field lain di `products.json` akan terbuang saat data ditulis ulang.

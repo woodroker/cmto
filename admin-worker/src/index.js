@@ -150,12 +150,15 @@ async function api(req, env) {
   if (req.method === 'PUT') {
     const body = await req.json();
     if (!Array.isArray(body.items)) return json({ error: 'items harus berupa daftar' }, 400);
+    let beforeItems;
     try {
+      beforeItems = (await readCatalog(env)).data.items;
       await update(env, items => { items.splice(0, items.length, ...body.items); return null; },
         `dashboard: simpan ${body.items.length} karya`);
     } catch (e) {
       return json({ error: e.message }, 400);
     }
+    await syncBloggerDiff(env, beforeItems);
     return json({ ok: true });
   }
   return json({ error: 'Metode tidak diizinkan' }, 405);
@@ -242,19 +245,21 @@ async function change(env, rest) {
   const [, id, rawField, value] = m;
   const key = ALIAS[rawField.toLowerCase()];
   if (!key) return `Field "${rawField}" tidak dikenal. Pilih: nama, kategori, deskripsi, harga, beli, gambar, tautan, spesifikasi`;
-  return update(env, items => {
+  const msg = await update(env, items => {
     const p = items.find(x => x.id === id);
     if (!p) throw new Error(`ID "${id}" tidak ditemukan`);
     p[key] = toValue(key, value);
     return `✅ ${id}: ${rawField} diperbarui.`;
   }, `bot: ubah ${id}.${key}`);
+  await syncBloggerSafe(env, id);
+  return msg;
 }
 
 async function add(env, rest) {
   const parts = rest.split('|').map(s => s.trim());
   if (parts.length < 6) return 'Format: /tambah <id> | nama | kategori | deskripsi | harga | link gambar';
   const [id, name, category, desc, price, image] = parts;
-  return update(env, items => {
+  const msg = await update(env, items => {
     if (items.some(x => x.id === id)) throw new Error(`ID "${id}" sudah dipakai`);
     items.push({
       id, name, category, desc,
@@ -263,18 +268,22 @@ async function add(env, rest) {
     });
     return `✅ Karya "${name}" ditambahkan.`;
   }, `bot: tambah ${id}`);
+  await syncBloggerSafe(env, id);
+  return msg;
 }
 
 async function remove(env, rest) {
   const [id, konfirmasi] = rest.split(/\s+/);
   if (!id) return 'Format: /hapus <id> ya';
   if (konfirmasi !== 'ya') return `Untuk menghapus, ketik: /hapus ${id} ya`;
-  return update(env, items => {
+  const msg = await update(env, items => {
     const i = items.findIndex(x => x.id === id);
     if (i < 0) throw new Error(`ID "${id}" tidak ditemukan`);
     items.splice(i, 1);
     return `🗑️ "${id}" dihapus.`;
   }, `bot: hapus ${id}`);
+  try { await bloggerDelete(env, id); } catch (e) { await notifyAdmins(env, `⚠️ Gagal hapus post Blogger "${id}": ${e.message}`); }
+  return msg;
 }
 
 // ---------- Sinkron Instagram ----------
@@ -343,6 +352,7 @@ async function autoAddFromInstagram(env, m, localUrl) {
       return null;
     }, `bot: auto-tambah dari IG ${m.id}`);
     if (!added) return;   // sudah pernah ditambahkan, jangan duplikat/notif ulang
+    await syncBloggerSafe(env, productId);
     const text = `✅ Otomatis ditambahkan ke katalog (ada WhatsApp di caption)\n\nid: ${productId}\nnama: ${name}\n${m.permalink}\n\nLengkapi bila perlu:\n/ubah ${productId} kategori <kategori>\n/ubah ${productId} harga <harga>`;
     for (const chat of allowedChats(env)) await sendPhoto(env, chat, localUrl, text);
   } catch (e) {
@@ -387,4 +397,151 @@ async function sendPhoto(env, chat_id, photo, caption) {
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ chat_id, photo, caption: caption.slice(0, 1024) }),
   });
+}
+
+// ---------- Blogger API (SEO: 1 postingan per karya) ----------
+// Butuh BLOGGER_BLOG_ID + BLOG_URL di [vars], dan BLOGGER_CLIENT_ID,
+// BLOGGER_CLIENT_SECRET, BLOGGER_REFRESH_TOKEN sebagai secret. Kalau belum
+// disetel, fungsi-fungsi ini diam saja (tidak error) supaya /tambah, /ubah,
+// dll tetap jalan normal tanpa Blogger.
+const escHtml = s => String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+const escAttr = s => escHtml(s).replace(/"/g, '&quot;');
+
+let bloggerTokenCache = null; // { token, exp } — cache ringan selama isolate worker hidup
+async function bloggerToken(env) {
+  if (bloggerTokenCache && bloggerTokenCache.exp > Date.now()) return bloggerTokenCache.token;
+  const r = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      client_id: env.BLOGGER_CLIENT_ID,
+      client_secret: env.BLOGGER_CLIENT_SECRET,
+      refresh_token: env.BLOGGER_REFRESH_TOKEN,
+      grant_type: 'refresh_token',
+    }),
+  });
+  if (!r.ok) throw new Error(`Gagal ambil token Blogger (${r.status})`);
+  const j = await r.json();
+  bloggerTokenCache = { token: j.access_token, exp: Date.now() + (j.expires_in - 60) * 1000 };
+  return j.access_token;
+}
+
+// Homepage sekarang pakai template "Pengrajin Kayu" (lihat template/blogger-template.xml) —
+// bukan SPA dengan hash-routing lagi, jadi link balik dari tiap postingan produk
+// diarahkan ke bagian #karya di homepage (list Karya di situ sudah live dari products.json).
+function productUrl(env) {
+  return `${String(env.BLOG_URL).replace(/\/$/, '')}/#karya`;
+}
+
+function productPostBody(env, p) {
+  const url = productUrl(env);
+  const priceText = p.price == null ? 'Tanya harga' : rupiah(p.price);
+  const wa = `https://wa.me/6287847644244?text=${encodeURIComponent(`Halo CMTO, saya tertarik dengan ${p.name}. Apakah tersedia?`)}`;
+  const specsHtml = (p.specs || []).length
+    ? `<ul>${p.specs.map(s => `<li>${escHtml(s)}</li>`).join('')}</ul>` : '';
+  const ld = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: p.name,
+    image: [p.image],
+    description: p.desc || p.name,
+    category: p.category,
+    url,
+    offers: {
+      '@type': 'Offer',
+      priceCurrency: 'IDR',
+      url,
+      availability: p.buy ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      ...(p.price != null ? { price: p.price } : {}),
+    },
+  };
+  return `<div class="cmto-product-post">
+<img src="${escAttr(p.image)}" alt="${escAttr(p.name)}" style="max-width:100%;height:auto"/>
+<p>${escHtml(p.desc || '').replace(/\n/g, '<br/>')}</p>
+${specsHtml}
+<p><strong>${escHtml(priceText)}</strong></p>
+<p>
+  <a href="${escAttr(wa)}" rel="nofollow noopener" target="_blank">Pesan via WhatsApp</a>
+  &nbsp;|&nbsp;
+  <a href="${escAttr(url)}">Lihat &amp; beli di katalog lengkap</a>
+</p>
+<script type="application/ld+json">${JSON.stringify(ld)}</script>
+</div>`;
+}
+
+// Buat/update 1 post Blogger untuk 1 produk. Mapping id produk -> id post
+// Blogger disimpan di KV SEEN (key: blogpost:<id>) karena products.json
+// tidak perlu tahu-menahu soal Blogger.
+async function bloggerUpsert(env, p) {
+  if (!env.BLOGGER_BLOG_ID || !env.BLOGGER_REFRESH_TOKEN || !env.BLOG_URL) return; // belum disetel
+  const token = await bloggerToken(env);
+  const payload = JSON.stringify({
+    title: p.name,
+    content: productPostBody(env, p),
+    labels: ['karya', p.category].filter(Boolean),
+  });
+  const base = `https://www.googleapis.com/blogger/v3/blogs/${env.BLOGGER_BLOG_ID}/posts`;
+  const mapKey = `blogpost:${p.id}`;
+  const existing = await env.SEEN.get(mapKey);
+  const headers = { authorization: `Bearer ${token}`, 'content-type': 'application/json' };
+  let r = existing
+    ? await fetch(`${base}/${existing}`, { method: 'PUT', headers, body: payload })
+    : await fetch(base, { method: 'POST', headers, body: payload });
+  if (existing && r.status === 404) {   // post lama sudah dihapus manual -> bikin baru
+    r = await fetch(base, { method: 'POST', headers, body: payload });
+  }
+  if (!r.ok) throw new Error(`Blogger API ${r.status}`);
+  const j = await r.json();
+  await env.SEEN.put(mapKey, j.id);
+}
+
+async function bloggerDelete(env, id) {
+  if (!env.BLOGGER_BLOG_ID || !env.BLOGGER_REFRESH_TOKEN) return;
+  const mapKey = `blogpost:${id}`;
+  const postId = await env.SEEN.get(mapKey);
+  if (!postId) return;
+  const token = await bloggerToken(env);
+  await fetch(`https://www.googleapis.com/blogger/v3/blogs/${env.BLOGGER_BLOG_ID}/posts/${postId}`, {
+    method: 'DELETE',
+    headers: { authorization: `Bearer ${token}` },
+  });
+  await env.SEEN.delete(mapKey);
+}
+
+// Dipanggil setelah products.json berhasil diubah. Gagal sinkron Blogger
+// TIDAK membatalkan perubahan katalog — admin cuma dapat notifikasi warning.
+async function syncBloggerSafe(env, productId) {
+  try {
+    const { data } = await readCatalog(env);
+    const p = data.items.find(x => x.id === productId);
+    if (!p) return;
+    await bloggerUpsert(env, p);
+  } catch (e) {
+    await notifyAdmins(env, `⚠️ Gagal sinkron "${productId}" ke Blogger: ${e.message}`);
+  }
+}
+
+// Dipakai setelah dashboard menyimpan seluruh katalog sekaligus (PUT
+// /api/products). Hanya sinkron item yang benar-benar baru/berubah/dihapus
+// dibanding sebelumnya — bukan upsert semua item tiap kali save.
+async function syncBloggerDiff(env, before) {
+  if (!env.BLOGGER_BLOG_ID || !env.BLOGGER_REFRESH_TOKEN || !env.BLOG_URL) return; // belum disetel
+  let after;
+  try { ({ data: { items: after } } = await readCatalog(env)); } catch { return; }
+  const beforeMap = new Map(before.map(p => [p.id, p]));
+  const afterIds = new Set(after.map(p => p.id));
+  const errors = [];
+
+  for (const id of beforeMap.keys()) {
+    if (afterIds.has(id)) continue;
+    try { await bloggerDelete(env, id); } catch (e) { errors.push(`hapus ${id}: ${e.message}`); }
+  }
+  for (const p of after) {
+    const old = beforeMap.get(p.id);
+    if (old && JSON.stringify(old) === JSON.stringify(p)) continue;   // tidak berubah
+    try { await bloggerUpsert(env, p); } catch (e) { errors.push(`${p.id}: ${e.message}`); }
+  }
+  if (errors.length) {
+    await notifyAdmins(env, `⚠️ Sinkron Blogger dari dashboard, ${errors.length} gagal:\n` + errors.slice(0, 10).join('\n'));
+  }
 }
