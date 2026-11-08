@@ -10,39 +10,29 @@ binding = "ASSETS"
 [vars]
 # ID akun Instagram Business @udcmto (bukan rahasia)
 IG_USER_ID = "17841406106427783"
-# GANTI: daftar chat ID Telegram asli yang boleh memakai bot, dipisah koma
-# (ambil dari https://api.telegram.org/bot<TOKEN>/getUpdates setelah kirim pesan ke bot)
-ADMIN_CHAT_IDS = "123456789"
 
-# GANTI: URL blog Blogger kamu (dengan domain custom kalau sudah pasang),
-# dipakai untuk bikin link "Lihat & beli" di tiap postingan produk.
-BLOG_URL = "https://ganti-dengan-domain-blog-kamu.com"
-# GANTI: Blog ID Blogger kamu (bukan rahasia). Cara lihat: buka Blogger ->
-# pilih blog -> buka halaman mana saja di dashboard -> lihat URL-nya,
-# formatnya blogger.com/blog/posts/<BLOG_ID> atau blogger.com/blog/.../<BLOG_ID>
-BLOGGER_BLOG_ID = "GANTI_DENGAN_BLOG_ID"
+# Chat ID Telegram yang boleh memakai bot, dipisah koma (bukan rahasia)
+ADMIN_CHAT_IDS = "8425764136"
+
+# URL blog Blogger, dipakai untuk link "Lihat & beli" di tiap postingan produk
+BLOG_URL = "https://www.cmto.my.id"
+
+# URL Web app Apps Script yang berakhiran /exec (lihat langkah deploy Apps Script)
+# GANTI nilai di bawah sebelum deploy. Jangan biarkan teks placeholder.
+APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxQw6arQ9gsUKYTpHcMEU0bHpjWgjjKcH3v1dldze_hlL3uQVvLmYe-YqbXj0BAWs0Ong/exec"
 
 # Cek postingan Instagram baru tiap 30 menit
 [triggers]
 crons = ["*/30 * * * *"]
 
-# GANTI: buat dulu dengan `npx wrangler kv namespace create SEEN`, lalu isi id di bawah
 [[kv_namespaces]]
 binding = "SEEN"
-id = "GANTI_DENGAN_ID_KV"
+id = "115773269d454bdc98c404bea6a1d59f"
 
-# Secret tambahan yang dipakai syncInstagram() tapi belum didaftarkan di sini —
-# jangan ditaruh di [vars] karena ini rahasia (long-lived token Graph API):
+# Secret (jangan ditaruh di [vars]):
+#   npx wrangler secret put ADMIN_TOKEN
+#   npx wrangler secret put GITHUB_TOKEN
+#   npx wrangler secret put TELEGRAM_BOT_TOKEN
+#   npx wrangler secret put WEBHOOK_SECRET
 #   npx wrangler secret put IG_ACCESS_TOKEN
-# Token ini dari Meta/Facebook Graph API untuk akun Instagram Business @udcmto
-# (System User token atau Page access token yang sudah ditukar jadi long-lived token).
-# Tanpa secret ini, cron syncInstagram() akan gagal dan admin akan dapat notifikasi
-# "⚠️ Sync Instagram gagal".
-
-# Secret untuk Blogger API (1 postingan otomatis per karya, lihat
-# bloggerUpsert() di src/index.js). Kalau belum disetel, fitur ini otomatis
-# dilewati (diam, tidak error) — /tambah, /ubah, dll tetap jalan normal.
-#   npx wrangler secret put BLOGGER_CLIENT_ID
-#   npx wrangler secret put BLOGGER_CLIENT_SECRET
-#   npx wrangler secret put BLOGGER_REFRESH_TOKEN
-# Cara dapatkan ketiganya: lihat panduan di README.md bagian "Sinkron ke Blogger".
+#   npx wrangler secret put APPS_SCRIPT_SECRET
