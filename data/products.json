@@ -1,7 +1,68 @@
-{"version":1,"items":[
-{"id":"papan-menu","name":"Papan menu kayu jati","category":"Branding","desc":"Untuk kafe dan resto, dengan penjepit kertas menu.","price":null,"buy":true,"image":"https://woodroker.github.io/cmto/img/menuboards_catalog.webp"},
-{"id":"meja-vinyl","name":"Meja vinyl LP kayu jati solid","category":"Furniture","desc":"Rak turntable dan piringan hitam, 70x38x70 cm.","specs":["Ukuran 70x38x70 cm","Bahan kayu jati solid","Finishing melamine natural"],"price":null,"buy":true,"image":"https://woodroker.github.io/cmto/img/turntable_udcmto.webp"},
-{"id":"pintu-jati","name":"Pintu jati","category":"Pintu & Kusen","desc":"Koleksi pintu jati minimalis dan klasik.","price":null,"buy":true,"image":"https://woodroker.github.io/cmto/img/Thedoors_snakethedivine_udcmto.webp"},
-{"id":"pintu-krepyak","name":"Pintu krepyak jati","category":"Pintu & Kusen","desc":"Pintu krepyak untuk pesanan custom.","price":null,"buy":false,"link":"https://bit.ly/3eCvlWe","image":"https://woodroker.github.io/cmto/img/krepyak.webp"},
-{"id":"pintu-custom","name":"Pintu jati ukuran besar","category":"Pintu & Kusen","desc":"Tinggi 235 cm, dibuat sesuai ukuran rumah Anda.","specs":["Tinggi 235 cm","Kayu jati","Ukuran custom sesuai pesanan"],"price":null,"buy":false,"link":"https://g.page/udcmto","image":"https://woodroker.github.io/cmto/img/bigsize_ofthe_doors_udcmto.webp"}
-]}
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "papan-menu",
+      "name": "Papan menu kayu jati",
+      "category": "Branding",
+      "desc": "Untuk kafe dan resto, dengan penjepit kertas menu.",
+      "specs": [
+        "Ada yang sengaja dijepit agar tidak lekas terbang oleh angin, seperti ingatan atau barangkali sepiring rindu yang sedang kamu cari.",
+        "Lembaran menu ini ringkas, namun di dalamnya tumbuh riuh pilihan yang menunggu kauseduh. Sebuah penjepit besi menjaga agar cerita-cerita tentang rasa hangat tetap utuh di tempatnya, menantimu datang untuk membebaskannya menjadi hidangan di atas meja.",
+        "Hari ini, rasa apa yang ingin kau abadikan dalam ingatan?"
+      ],
+      "price": 115000,
+      "buy": true,
+      "image": "https://instagram.fjog9-1.fna.fbcdn.net/v/t39.30808-6/353654525_744722737663213_7544855299497049479_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=105&_nc_map=urlgen_bucketless&ig_cache_key=MzEzNTgxMTYzNzY2Nzk3NjMzNA%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMTA4MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=9RxFvyN7ZY4Q7kNvwGwJwgQ&_nc_oc=AdrZXObqZx4xe-QyLoxZl-3txqpH08nThzbD9DubWBlF1dT2PeBZk24fmoIrIJgg-8k&_nc_zt=23&_nc_ht=instagram.fjog9-1.fna&_nc_gid=EQyJXjBQ4eSIWYPPhmWFuA&_nc_ss=7b6a8&oh=00_AQQaB3Mh1b4BWd69MsqI3ApgdSNVGurNEXEk4lTaZ7XAzg&oe=6AF67F8B",
+      "link": "https://www.instagram.com/p/CuEpBN1vzYv/?img_index=1"
+    },
+    {
+      "id": "meja-vinyl",
+      "name": "Meja vinyl LP kayu jati solid",
+      "category": "Furniture",
+      "desc": "Rak turntable dan piringan hitam, 70x38x70 cm.",
+      "specs": [
+        "Ukuran 70x38x70 cm",
+        "Bahan kayu jati solid",
+        "Finishing melamine natural"
+      ],
+      "price": null,
+      "buy": true,
+      "image": "https://woodroker.github.io/cmto/img/turntable_udcmto.webp"
+    },
+    {
+      "id": "pintu-jati",
+      "name": "Pintu jati",
+      "category": "Pintu & Kusen",
+      "desc": "Koleksi pintu jati minimalis dan klasik.",
+      "price": null,
+      "buy": true,
+      "image": "https://woodroker.github.io/cmto/img/Thedoors_snakethedivine_udcmto.webp"
+    },
+    {
+      "id": "pintu-krepyak",
+      "name": "Pintu krepyak jati",
+      "category": "Pintu & Kusen",
+      "desc": "Pintu krepyak untuk pesanan custom.",
+      "price": null,
+      "buy": false,
+      "image": "https://woodroker.github.io/cmto/img/krepyak.webp",
+      "link": "https://bit.ly/3eCvlWe"
+    },
+    {
+      "id": "pintu-custom",
+      "name": "Pintu jati ukuran besar",
+      "category": "Pintu & Kusen",
+      "desc": "Tinggi 235 cm, dibuat sesuai ukuran rumah Anda.",
+      "specs": [
+        "Tinggi 235 cm",
+        "Kayu jati",
+        "Ukuran custom sesuai pesanan"
+      ],
+      "price": null,
+      "buy": false,
+      "image": "https://woodroker.github.io/cmto/img/bigsize_ofthe_doors_udcmto.webp",
+      "link": "https://g.page/udcmto"
+    }
+  ]
+}
