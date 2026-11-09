@@ -1,70 +1,7 @@
-{
-  "version": 1,
-  "items": [
-    {
-      "id": "papan-menu",
-      "name": "Papan menu kayu jati",
-      "category": "Branding",
-      "desc": "Untuk kafe dan resto, dengan penjepit kertas menu.",
-      "specs": [
-        "Ada yang sengaja dijepit agar tidak lekas terbang oleh angin, seperti ingatan atau barangkali sepiring rindu yang sedang kamu cari.",
-        "Lembaran menu ini ringkas, namun di dalamnya tumbuh riuh pilihan yang menunggu kauseduh. Sebuah penjepit besi menjaga agar cerita-cerita tentang rasa hangat tetap utuh di tempatnya, menantimu datang untuk membebaskannya menjadi hidangan di atas meja.",
-        "Hari ini, rasa apa yang ingin kau abadikan dalam ingatan?"
-      ],
-      "price": null,
-      "buy": true,
-      "image": "https://instagram.fjog9-1.fna.fbcdn.net/v/t39.30808-6/353654525_744722737663213_7544855299497049479_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=105&_nc_map=urlgen_bucketless&ig_cache_key=MzEzNTgxMTYzNzY2Nzk3NjMzNA%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMTA4MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=9RxFvyN7ZY4Q7kNvwGwJwgQ&_nc_oc=AdrZXObqZx4xe-QyLoxZl-3txqpH08nThzbD9DubWBlF1dT2PeBZk24fmoIrIJgg-8k&_nc_zt=23&_nc_ht=instagram.fjog9-1.fna&_nc_gid=EQyJXjBQ4eSIWYPPhmWFuA&_nc_ss=7b6a8&oh=00_AQQaB3Mh1b4BWd69MsqI3ApgdSNVGurNEXEk4lTaZ7XAzg&oe=6AF67F8B",
-      "link": "https://www.instagram.com/p/CuEpBN1vzYv/?img_index=1"
-    },
-    {
-      "id": "meja-vinyl",
-      "name": "Meja vinyl LP kayu jati solid",
-      "category": "Furniture",
-      "desc": "Rak turntable dan piringan hitam, 70x38x70 cm.",
-      "specs": [
-        "Ukuran 70x38x70 cm",
-        "Bahan kayu jati solid",
-        "Finishing melamine natural"
-      ],
-      "price": null,
-      "buy": true,
-      "image": "https://instagram.fjog9-1.fna.fbcdn.net/v/t51.82787-15/514760119_18329286205203548_6555530930849124632_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=104&_nc_map=urlgen_bucketless&ig_cache_key=MzY2OTA5NzIzMzU3NTc4MDY2Mg%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMTIwMC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=4NB2Fjf5QqwQ7kNvwFMrM6b&_nc_oc=Adqi8GsA4fFq2Ys4QbkPyl1oEtWLt2K_DJtV8IoIct0ZHC02uO8ePX1mun00zDIdR8c&_nc_zt=23&_nc_ht=instagram.fjog9-1.fna&_nc_gid=dP4z61R6l5ugjkR-TSQMxg&_nc_ss=7baaf&oh=00_AQRQfrVlcjvtwb3udagRgCg-1W8HviCXbDffTqe3M_XTkw&oe=6AF686B8",
-      "link": "https://www.instagram.com/p/DLrQIBvJHRv/?img_index=1"
-    },
-    {
-      "id": "pintu-jati",
-      "name": "Pintu jati",
-      "category": "Pintu & Kusen",
-      "desc": "Koleksi pintu jati minimalis dan klasik.",
-      "price": null,
-      "buy": true,
-      "image": "https://instagram.fjog9-1.fna.fbcdn.net/v/t51.82787-15/536480892_18334908916203548_9194852292214065328_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=100&_nc_map=urlgen_bucketless&ig_cache_key=MzcwNTE5MDAxMTg4NTQ1NjgyNw%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkZFRUQueHBpZHMuMTQ0MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=VaTlgma354sQ7kNvwFzZRyL&_nc_oc=AdpTXa0ZuSu2jli63sDk6NzyG6Xx1Y5ZoFe1YHarEdAeI6wpBCZmQQe0h30qoBRVMEI&_nc_zt=23&_nc_ht=instagram.fjog9-1.fna&_nc_gid=wgsB4luBhJ180CY-EGEDHw&_nc_ss=7baaf&oh=00_AQRjGesy95cgnVxDW4HgWVeFCdv3BtOd1UNihC27z_QL9Q&oe=6AF693B5",
-      "link": "https://www.instagram.com/p/DNreq9Twg27/"
-    },
-    {
-      "id": "pintu-krepyak",
-      "name": "Pintu krepyak jati",
-      "category": "Pintu & Kusen",
-      "desc": "Pintu krepyak untuk pesanan custom.",
-      "price": null,
-      "buy": false,
-      "image": "https://instagram.fjog9-1.fna.fbcdn.net/v/t39.30808-6/484552875_1221710596631089_4738935966158747293_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=100&_nc_map=urlgen_bucketless&ig_cache_key=MzEyNDAxODk1NzE1ODQ5MjM1Mg%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkZFRUQueHBpZHMuMjA0OC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=lKIagcFzKkQQ7kNvwEj1ZEJ&_nc_oc=AdpOzbFuseM4D6B1kWgMx89Yxv_3zRjscXmxC8ooXccfG3DRY3u7GLblPi07j2kpscs&_nc_zt=23&_nc_ht=instagram.fjog9-1.fna&_nc_gid=6qrt2ZF9NDWyvoobsKFyAA&_nc_ss=7baaf&oh=00_AQQZ0Di5cODVciIJ9R0cs0sNBxTqWmF1UKyxbhQQfhhg3A&oe=6AF6887E",
-      "link": "https://www.instagram.com/p/DKla1KTJkYp/"
-    },
-    {
-      "id": "pintu-custom",
-      "name": "Pintu jati ukuran besar",
-      "category": "Pintu & Kusen",
-      "desc": "Tinggi 235 cm, dibuat sesuai ukuran rumah Anda.",
-      "specs": [
-        "Tinggi 235 cm",
-        "Kayu jati",
-        "Ukuran custom sesuai pesanan"
-      ],
-      "price": null,
-      "buy": false,
-      "image": "https://woodroker.github.io/cmto/img/bigsize_ofthe_doors_udcmto.webp",
-      "link": "https://g.page/udcmto"
-    }
-  ]
-}
+{"version":1,"items":[
+{"id":"papan-menu","name":"Papan menu kayu jati","category":"Branding","desc":"Untuk kafe dan resto, dengan penjepit kertas menu.","price":null,"buy":true,"image":"https://woodroker.github.io/cmto/img/menuboards_catalog.webp"},
+{"id":"meja-vinyl","name":"Meja vinyl LP kayu jati solid","category":"Furniture","desc":"Rak turntable dan piringan hitam, 70x38x70 cm.","specs":["Ukuran 70x38x70 cm","Bahan kayu jati solid","Finishing melamine natural"],"price":null,"buy":true,"image":"https://woodroker.github.io/cmto/img/turntable_udcmto.webp"},
+{"id":"pintu-jati","name":"Pintu jati","category":"Pintu & Kusen","desc":"Koleksi pintu jati minimalis dan klasik.","price":null,"buy":true,"image":"https://woodroker.github.io/cmto/img/Thedoors_snakethedivine_udcmto.webp"},
+{"id":"pintu-krepyak","name":"Pintu krepyak jati","category":"Pintu & Kusen","desc":"Pintu krepyak untuk pesanan custom.","price":null,"buy":false,"link":"https://bit.ly/3eCvlWe","image":"https://woodroker.github.io/cmto/img/krepyak.webp"},
+{"id":"pintu-custom","name":"Pintu jati ukuran besar","category":"Pintu & Kusen","desc":"Tinggi 235 cm, dibuat sesuai ukuran rumah Anda.","specs":["Tinggi 235 cm","Kayu jati","Ukuran custom sesuai pesanan"],"price":null,"buy":false,"link":"https://g.page/udcmto","image":"https://woodroker.github.io/cmto/img/bigsize_ofthe_doors_udcmto.webp"}
+]}
