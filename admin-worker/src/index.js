@@ -12,18 +12,18 @@ const ALIAS = {
   tautan: 'link', link: 'link', spesifikasi: 'specs', specs: 'specs',
 };
 
-const HELP = `🤖 Bot Katalog CMTO
+const HELP = `?? Bot Katalog CMTO
 
-/daftar — lihat semua karya
-/lihat <id> — detail satu karya
-/ubah <id> <field> <nilai> — ubah isi karya
+/daftar � lihat semua karya
+/lihat <id> � detail satu karya
+/ubah <id> <field> <nilai> � ubah isi karya
   field: nama, kategori, deskripsi, harga, beli (ya/tidak), gambar, tautan, spesifikasi (pisah dengan ;)
   contoh: /ubah pintu-jati harga 2500000
   kosongkan tautan dengan: /ubah <id> tautan -
 /tambah <id> | nama | kategori | deskripsi | harga | link gambar
   contoh: /tambah kursi-jati | Kursi jati | Furniture | Kursi jati solid | 850000 | https://...
   harga kosong atau "tanya" = tampil "Tanya harga"
-/hapus <id> ya — hapus karya
+/hapus <id> ya � hapus karya
 
 Perubahan tayang di situs dalam beberapa menit.`;
 
@@ -33,7 +33,7 @@ const json = (o, s = 200) =>
 export default {
   // Cron: cek postingan IG baru (lihat wrangler.toml [triggers]).
   scheduled(event, env, ctx) {
-    ctx.waitUntil(syncInstagram(env).catch(e => notifyAdmins(env, '⚠️ Sync Instagram gagal: ' + e.message)));
+    ctx.waitUntil(syncInstagram(env).catch(e => notifyAdmins(env, '?? Sync Instagram gagal: ' + e.message)));
   },
 
   async fetch(req, env) {
@@ -77,7 +77,7 @@ async function purge() {
   try { await fetch(`https://purge.jsdelivr.net/gh/${REPO}@${BRANCH}/${FILE}`); } catch {}
 }
 
-// Baca → ubah → validasi → tulis. Retry jika ada konflik (409).
+// Baca ? ubah ? validasi ? tulis. Retry jika ada konflik (409).
 async function update(env, mutate, message) {
   for (let attempt = 1; attempt <= 3; attempt++) {
     const { data, sha } = await readCatalog(env);
@@ -182,7 +182,7 @@ async function telegram(req, env) {
   try {
     reply = await handle(msg.text.trim(), env);
   } catch (e) {
-    reply = '⚠️ ' + e.message;
+    reply = '?? ' + e.message;
   }
   await send(env, chat, reply);
   return new Response('ok');
@@ -217,7 +217,7 @@ async function list(env) {
   const { data } = await readCatalog(env);
   if (!data.items.length) return 'Katalog masih kosong.';
   return data.items.map((p, i) =>
-    `${String(i + 1).padStart(2, '0')}. ${p.id} — ${p.name} [${p.category}] ${p.price == null ? 'Tanya harga' : rupiah(p.price)}`
+    `${String(i + 1).padStart(2, '0')}. ${p.id} � ${p.name} [${p.category}] ${p.price == null ? 'Tanya harga' : rupiah(p.price)}`
   ).join('\n');
 }
 
@@ -249,7 +249,7 @@ async function change(env, rest) {
     const p = items.find(x => x.id === id);
     if (!p) throw new Error(`ID "${id}" tidak ditemukan`);
     p[key] = toValue(key, value);
-    return `✅ ${id}: ${rawField} diperbarui.`;
+    return `? ${id}: ${rawField} diperbarui.`;
   }, `bot: ubah ${id}.${key}`);
   await syncBloggerSafe(env, id);
   return msg;
@@ -266,7 +266,7 @@ async function add(env, rest) {
       price: /^(|tanya)$/i.test(price) ? null : parsePrice(price),
       buy: true, image,
     });
-    return `✅ Karya "${name}" ditambahkan.`;
+    return `? Karya "${name}" ditambahkan.`;
   }, `bot: tambah ${id}`);
   await syncBloggerSafe(env, id);
   return msg;
@@ -280,9 +280,9 @@ async function remove(env, rest) {
     const i = items.findIndex(x => x.id === id);
     if (i < 0) throw new Error(`ID "${id}" tidak ditemukan`);
     items.splice(i, 1);
-    return `🗑️ "${id}" dihapus.`;
+    return `??? "${id}" dihapus.`;
   }, `bot: hapus ${id}`);
-  try { await bloggerDelete(env, id); } catch (e) { await notifyAdmins(env, `⚠️ Gagal hapus post Blogger "${id}": ${e.message}`); }
+  try { await bloggerDelete(env, id); } catch (e) { await notifyAdmins(env, `?? Gagal hapus post Blogger "${id}": ${e.message}`); }
   return msg;
 }
 
@@ -309,7 +309,10 @@ function hasWaTrigger(caption) {
 async function syncInstagram(env) {
   const url = `https://graph.facebook.com/v21.0/${env.IG_USER_ID}/media?fields=${IG_FIELDS}&limit=25`;
   const r = await fetch(url, { headers: { authorization: `Bearer ${env.IG_ACCESS_TOKEN}` } });
-  if (!r.ok) throw new Error(`Graph API ${r.status}`);
+  if (!r.ok) {
+    const err = await r.json().catch(() => ({}));
+    throw new Error(`Graph API ${r.status}: ${err.error?.message || 'tanpa pesan'}`);
+  }
   const { data = [] } = await r.json();
 
   if (!(await env.SEEN.get('seeded'))) {
@@ -331,7 +334,7 @@ async function syncInstagram(env) {
   }
 }
 
-// Caption ada "WhatsApp: +62 878 47644244" → langsung tambah sebagai karya,
+// Caption ada "WhatsApp: +62 878 47644244" ? langsung tambah sebagai karya,
 // tanpa menunggu konfirmasi /tambah manual. Kategori & harga diisi default
 // ("Dari Instagram" / Tanya harga) dan bisa diperbaiki lewat /ubah.
 async function autoAddFromInstagram(env, m, localUrl) {
@@ -353,10 +356,10 @@ async function autoAddFromInstagram(env, m, localUrl) {
     }, `bot: auto-tambah dari IG ${m.id}`);
     if (!added) return;   // sudah pernah ditambahkan, jangan duplikat/notif ulang
     await syncBloggerSafe(env, productId);
-    const text = `✅ Otomatis ditambahkan ke katalog (ada WhatsApp di caption)\n\nid: ${productId}\nnama: ${name}\n${m.permalink}\n\nLengkapi bila perlu:\n/ubah ${productId} kategori <kategori>\n/ubah ${productId} harga <harga>`;
+    const text = `? Otomatis ditambahkan ke katalog (ada WhatsApp di caption)\n\nid: ${productId}\nnama: ${name}\n${m.permalink}\n\nLengkapi bila perlu:\n/ubah ${productId} kategori <kategori>\n/ubah ${productId} harga <harga>`;
     for (const chat of allowedChats(env)) await sendPhoto(env, chat, localUrl, text);
   } catch (e) {
-    await notifyAdmins(env, `⚠️ Gagal auto-tambah dari IG ${m.id}: ${e.message}\n${m.permalink}`);
+    await notifyAdmins(env, `?? Gagal auto-tambah dari IG ${m.id}: ${e.message}\n${m.permalink}`);
   }
 }
 
@@ -366,7 +369,7 @@ async function notifyNewPost(env, m, photo, localUrl) {
   const hint = localUrl
     ? `\n\nTambah ke katalog:\n/tambah ${productId} | <nama> | <kategori> | <deskripsi> | <harga> | ${localUrl}`
     : '\n\n(gambar gagal disalin, tambahkan manual)';
-  const text = `📸 Postingan baru dari IG\n\n${caption}\n\n${m.permalink}${hint}`;
+  const text = `?? Postingan baru dari IG\n\n${caption}\n\n${m.permalink}${hint}`;
 
   for (const chat of allowedChats(env)) {
     if (photo) await sendPhoto(env, chat, photo, text);
@@ -399,36 +402,13 @@ async function sendPhoto(env, chat_id, photo, caption) {
   });
 }
 
-// ---------- Blogger API (SEO: 1 postingan per karya) ----------
-// Butuh BLOGGER_BLOG_ID + BLOG_URL di [vars], dan BLOGGER_CLIENT_ID,
-// BLOGGER_CLIENT_SECRET, BLOGGER_REFRESH_TOKEN sebagai secret. Kalau belum
-// disetel, fungsi-fungsi ini diam saja (tidak error) supaya /tambah, /ubah,
-// dll tetap jalan normal tanpa Blogger.
+// ---------- Blogger (SEO: 1 postingan per karya) ----------
+// Lewat Google Apps Script (kirim email ke alamat Mail-to-Blogger).
+// Butuh APPS_SCRIPT_URL + BLOG_URL di [vars], dan APPS_SCRIPT_SECRET sebagai secret.
+// Kalau belum disetel, fungsi-fungsi ini diam saja (tidak error).
 const escHtml = s => String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
 const escAttr = s => escHtml(s).replace(/"/g, '&quot;');
 
-let bloggerTokenCache = null; // { token, exp } — cache ringan selama isolate worker hidup
-async function bloggerToken(env) {
-  if (bloggerTokenCache && bloggerTokenCache.exp > Date.now()) return bloggerTokenCache.token;
-  const r = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: { 'content-type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      client_id: env.BLOGGER_CLIENT_ID,
-      client_secret: env.BLOGGER_CLIENT_SECRET,
-      refresh_token: env.BLOGGER_REFRESH_TOKEN,
-      grant_type: 'refresh_token',
-    }),
-  });
-  if (!r.ok) throw new Error(`Gagal ambil token Blogger (${r.status})`);
-  const j = await r.json();
-  bloggerTokenCache = { token: j.access_token, exp: Date.now() + (j.expires_in - 60) * 1000 };
-  return j.access_token;
-}
-
-// Homepage sekarang pakai template "Pengrajin Kayu" (lihat template/blogger-template.xml) —
-// bukan SPA dengan hash-routing lagi, jadi link balik dari tiap postingan produk
-// diarahkan ke bagian #karya di homepage (list Karya di situ sudah live dari products.json).
 function productUrl(env) {
   return `${String(env.BLOG_URL).replace(/\/$/, '')}/#karya`;
 }
@@ -469,47 +449,28 @@ ${specsHtml}
 </div>`;
 }
 
-// Buat/update 1 post Blogger untuk 1 produk. Mapping id produk -> id post
-// Blogger disimpan di KV SEEN (key: blogpost:<id>) karena products.json
-// tidak perlu tahu-menahu soal Blogger.
+// Kirim 1 post Blogger untuk 1 produk. Apps Script hanya bisa menambah post,
+// jadi setiap pemanggilan membuat post baru (tidak mengedit yang lama).
 async function bloggerUpsert(env, p) {
-  if (!env.BLOGGER_BLOG_ID || !env.BLOGGER_REFRESH_TOKEN || !env.BLOG_URL) return; // belum disetel
-  const token = await bloggerToken(env);
-  const payload = JSON.stringify({
-    title: p.name,
-    content: productPostBody(env, p),
-    labels: ['karya', p.category].filter(Boolean),
+  if (!env.APPS_SCRIPT_URL || !env.APPS_SCRIPT_SECRET || !env.BLOG_URL) return; // belum disetel
+  const res = await fetch(env.APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'content-type': 'text/plain' },
+    body: JSON.stringify({
+      secret: env.APPS_SCRIPT_SECRET,
+      subject: p.name,
+      html: productPostBody(env, p),
+    }),
   });
-  const base = `https://www.googleapis.com/blogger/v3/blogs/${env.BLOGGER_BLOG_ID}/posts`;
-  const mapKey = `blogpost:${p.id}`;
-  const existing = await env.SEEN.get(mapKey);
-  const headers = { authorization: `Bearer ${token}`, 'content-type': 'application/json' };
-  let r = existing
-    ? await fetch(`${base}/${existing}`, { method: 'PUT', headers, body: payload })
-    : await fetch(base, { method: 'POST', headers, body: payload });
-  if (existing && r.status === 404) {   // post lama sudah dihapus manual -> bikin baru
-    r = await fetch(base, { method: 'POST', headers, body: payload });
-  }
-  if (!r.ok) throw new Error(`Blogger API ${r.status}`);
-  const j = await r.json();
-  await env.SEEN.put(mapKey, j.id);
+  const text = await res.text();
+  if (!res.ok || text !== 'ok') throw new Error(`Kirim ke Blogger gagal (${res.status}): ${text.slice(0, 100)}`);
 }
 
-async function bloggerDelete(env, id) {
-  if (!env.BLOGGER_BLOG_ID || !env.BLOGGER_REFRESH_TOKEN) return;
-  const mapKey = `blogpost:${id}`;
-  const postId = await env.SEEN.get(mapKey);
-  if (!postId) return;
-  const token = await bloggerToken(env);
-  await fetch(`https://www.googleapis.com/blogger/v3/blogs/${env.BLOGGER_BLOG_ID}/posts/${postId}`, {
-    method: 'DELETE',
-    headers: { authorization: `Bearer ${token}` },
-  });
-  await env.SEEN.delete(mapKey);
-}
+// Mail-to-Blogger tidak bisa menghapus post. Hapus manual di Blogger.
+async function bloggerDelete(env, id) {}
 
 // Dipanggil setelah products.json berhasil diubah. Gagal sinkron Blogger
-// TIDAK membatalkan perubahan katalog — admin cuma dapat notifikasi warning.
+// TIDAK membatalkan perubahan katalog � admin cuma dapat notifikasi warning.
 async function syncBloggerSafe(env, productId) {
   try {
     const { data } = await readCatalog(env);
@@ -517,35 +478,31 @@ async function syncBloggerSafe(env, productId) {
     if (!p) return;
     await bloggerUpsert(env, p);
   } catch (e) {
-    await notifyAdmins(env, `⚠️ Gagal sinkron "${productId}" ke Blogger: ${e.message}`);
+    await notifyAdmins(env, `?? Gagal sinkron "${productId}" ke Blogger: ${e.message}`);
   }
 }
 
 // Dipakai setelah dashboard menyimpan seluruh katalog sekaligus (PUT
 // /api/products). Hanya sinkron item yang benar-benar baru/berubah/dihapus
-// dibanding sebelumnya — bukan upsert semua item tiap kali save.
+// dibanding sebelumnya - bukan upsert semua item tiap kali save.
 async function syncBloggerDiff(env, before) {
-  if (!env.BLOGGER_EMAIL || !env.RESEND_API_KEY) return; // belum disetel
+  if (!env.APPS_SCRIPT_URL || !env.APPS_SCRIPT_SECRET || !env.BLOG_URL) return; // belum disetel
   let after;
   try { ({ data: { items: after } } = await readCatalog(env)); } catch { return; }
   const beforeMap = new Map(before.map(p => [p.id, p]));
+  const afterIds = new Set(after.map(p => p.id));
   const errors = [];
 
+  for (const id of beforeMap.keys()) {
+    if (afterIds.has(id)) continue;
+    try { await bloggerDelete(env, id); } catch (e) { errors.push(`hapus ${id}: ${e.message}`); }
+  }
   for (const p of after) {
     const old = beforeMap.get(p.id);
     if (old && JSON.stringify(old) === JSON.stringify(p)) continue; // tidak berubah
-    try {
-      await kirimKeBlogger(env, {
-        judul: p.nama,
-        gambarUrl: p.gambar,
-        isi: p.deskripsi,
-      });
-    } catch (e) {
-      errors.push(`${p.id}: ${e.message}`);
-    }
+    try { await bloggerUpsert(env, p); } catch (e) { errors.push(`${p.id}: ${e.message}`); }
   }
-
   if (errors.length) {
-    await notifyAdmins(env, `?? Kirim ke Blogger dari dashboard, ${errors.length} gagal:\n` + errors.slice(0, 10).join('\n'));
+    await notifyAdmins(env, `?? Sinkron Blogger dari dashboard, ${errors.length} gagal:\n` + errors.slice(0, 10).join('\n'));
   }
 }
