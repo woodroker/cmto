@@ -66,6 +66,7 @@ body{margin:0;background:var(--bg);color:var(--fg);font:400 1rem/1.7 var(--sans)
 a{color:inherit;text-decoration:none}
 a:focus-visible{outline:1px solid var(--fg);outline-offset:6px}
 img{display:block}
+/* empat ukuran saja: display, judul, teks, label */
 .d{font:400 clamp(2.75rem,7.2vw,6.25rem)/1.02 var(--serif);letter-spacing:-.015em}
 .t{font:400 clamp(1.5rem,2.4vw,2rem)/1.2 var(--serif)}
 .l{font:500 .75rem/1.4 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
@@ -76,6 +77,7 @@ header img{height:1.9rem;width:auto;filter:invert(1);opacity:.92}
 :root[data-theme=light]{color-scheme:light;--bg:#f1ede5;--fg:#1c1814;--mute:#766d62;--line:rgba(28,24,20,.2)}
 html,body{transition:background-color .7s var(--ease),color .7s var(--ease)}
 :root[data-theme=light] header img{filter:none}
+/* ikon garis tipis, jam digital, pilihan latar */
 .tools{display:flex;align-items:center;gap:.25rem}
 .tools svg{width:1.25rem;height:1.25rem;fill:none;stroke:currentColor;stroke-width:1;stroke-linecap:round;stroke-linejoin:round}
 .ic{display:grid;place-items:center;width:2rem;height:2.25rem;opacity:.7;transition:opacity .5s var(--ease),transform .5s var(--ease)}
@@ -109,13 +111,18 @@ section{padding-block:clamp(6rem,14vw,12rem)}
 .rule.in{transform:none}
 .cols{display:grid;gap:2.5rem var(--g);grid-template-columns:1fr}
 @media(min-width:56rem){.cols{grid-template-columns:minmax(0,4fr) minmax(0,8fr)}}
+/* karya: baris tipografi */
 .work a{display:grid;grid-template-columns:2.5rem 1fr auto;align-items:baseline;gap:1rem;padding-block:1.6rem;border-top:1px solid var(--line);transition:padding .8s var(--ease)}
 .work li:last-child a{border-bottom:1px solid var(--line)}
 .work .n{font-variant-numeric:tabular-nums;color:var(--mute);font-size:.8125rem}
 .work .t{transition:transform .8s var(--ease),opacity .6s}
-.work a:hover .t{transform:translateX(.75rem)}
+.work a:hover .t,.work a.hv .t{transform:translateX(.75rem)}
 .work ul:hover a:not(:hover) .t{opacity:.45}
+.work ul.hv-on a:not(.hv) .t{opacity:.45}
 .work .m{color:var(--mute);font-size:.875rem;text-align:right}
+@media(max-width:55.99rem){.work a{grid-template-columns:2.5rem 1fr;gap:.25rem 1rem}.work .m{grid-column:2;text-align:left}}
+@media(max-width:40rem){.work a{grid-template-columns:2rem 1fr}}
+/* pratinjau gambar saat hover: memuat dengan garis progres, lalu terbuka */
 #pv{position:fixed;left:0;top:0;z-index:4;width:min(22vw,19rem);aspect-ratio:4/5;pointer-events:none;opacity:0;overflow:hidden;border:1px solid var(--line);background:rgba(128,128,128,.07);transition:opacity .45s var(--ease);will-change:transform}
 #pv.on{opacity:1}
 #pv .im{position:absolute;inset:0;background-size:cover;background-position:center;clip-path:inset(100% 0 0 0);transform:scale(1.1);transition:clip-path 1s var(--ease),transform 1.5s var(--ease)}
@@ -124,29 +131,50 @@ section{padding-block:clamp(6rem,14vw,12rem)}
 #pv .pct{position:absolute;left:.75rem;top:.75rem;font:500 .75rem/1 var(--sans);letter-spacing:.16em;font-variant-numeric:tabular-nums;transition:opacity .4s}
 #pv.ready .bar,#pv.ready .pct{opacity:0}
 @media(hover:none){#pv{display:none}}
+/* ilustrasi: lingkar tahun kayu digambar garis tipis, lalu berputar sangat pelan */
 .hero{position:relative;overflow:hidden}
 .hero>*:not(.rings){position:relative;z-index:1}
 .rings{position:absolute;z-index:0;right:calc(var(--g) - 5rem);top:5.5rem;width:min(64vw,44rem);aspect-ratio:1;pointer-events:none;opacity:.5;-webkit-mask-image:radial-gradient(circle,#000 50%,transparent 71%);mask-image:radial-gradient(circle,#000 50%,transparent 71%)}
-.rings svg{width:100%;height:100%;display:block}
+.rings svg{width:100%;height:100%;display:block;animation:spin 360s linear infinite}
+.rings path{fill:none;stroke:var(--fg);stroke-width:.7;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 2.8s var(--ease);transition-delay:calc(var(--i,0)*.15s + .5s)}
+.rings.in path{stroke-dashoffset:0}
+.rings .crack{stroke-width:.8;opacity:.7}
+@keyframes spin{to{transform:rotate(360deg)}}
 @media(max-width:40rem){.rings{width:104vw;right:-34vw;top:4.5rem;opacity:.34}}
-.door{width:min(20rem,100%);margin-top:4rem;opacity:.9}
+@media(prefers-reduced-motion:reduce){.rings svg{animation:none}.rings path{stroke-dashoffset:0;transition:none}}
+/* ilustrasi Tentang (kiri): gambar kerja pintu 200 cm, tergambar lalu diukur */
+.door{width:min(20rem,100%);margin-top:4rem}
 #tentang{padding-bottom:clamp(3rem,7vw,6rem)}
+.door .leaf{fill:var(--bg)}
+.door .glow{fill:url(#gl);stroke:none;stroke-dasharray:none;stroke-dashoffset:0;transition:none}
 .door svg{display:block;width:100%;height:auto}
+.door path,.door circle{fill:none;stroke:var(--fg);stroke-width:.7;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 2.4s var(--ease);transition-delay:calc(var(--i,0)*.2s + .4s)}
+.door.in path,.door.in circle{stroke-dashoffset:0}
+.door .soft{opacity:.5}
+.door text{fill:var(--mute);font:500 6px var(--sans);letter-spacing:.16em;opacity:0;transition:opacity 1.2s var(--ease) 3s}
+.door.in text{opacity:1}
+.door .scan{stroke-dasharray:none;stroke-dashoffset:0;transition:none;opacity:0}
+.door.in .scan{animation:scan 7s ease-in-out 3.4s infinite alternate}
+@keyframes scan{0%{transform:translateY(10px);opacity:0}12%,88%{opacity:.85}100%{transform:translateY(214px);opacity:0}}
 @media(max-width:40rem){.door{width:min(15rem,80%);margin-top:2.5rem}}
+@media(max-width:55.99rem){#tentang .cols{grid-template-columns:minmax(0,clamp(5rem,24vw,12rem)) minmax(0,1fr);gap:1.25rem clamp(1.25rem,4vw,2.5rem)}#tentang .door{width:100%;margin-top:1.5rem}}
+@media(max-width:30rem){.door text{display:none}}
+@media(prefers-reduced-motion:reduce){.door path,.door circle{stroke-dashoffset:0;transition:none}.door text{opacity:1;transition:none}.door.in .scan{animation:none}}
 ul{list-style:none;margin:0;padding:0}
 .bio p{margin:0 0 1.5rem;max-width:34rem}
 .bio .t{margin:0 0 2rem;max-width:22ch}
 .writing .it{display:grid;gap:.4rem;padding-block:1.6rem;border-top:1px solid var(--line)}
 .writing li:last-child .it{border-bottom:1px solid var(--line)}
-.writing .it:hover .t{font-style:italic}
+.writing .it:hover .t,.writing .it.hv .t{font-style:italic}
 .writing p{margin:0;color:var(--mute);max-width:34rem}
 .contact .d a{background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size 1s var(--ease)}
 .contact .d a:hover{background-size:100% 1px}
 .contact .meta{display:flex;flex-wrap:wrap;gap:1rem 3rem;margin-top:3rem}
 footer{display:flex;justify-content:space-between;gap:1rem;padding-block:2rem calc(2rem + env(safe-area-inset-bottom,0px))}
+/* masuk perlahan: naik sedikit, tanpa lonjakan */
 .r{opacity:0;transform:translate3d(0,22px,0);transition:opacity 1.5s var(--ease),transform 1.5s var(--ease);transition-delay:calc(var(--i,0)*110ms);will-change:opacity,transform}
 .r.in{opacity:1;transform:none;will-change:auto}
-@media(prefers-reduced-motion:reduce){.r{opacity:1;transform:none;transition:none}.rule{transform:none;transition:none}html{scroll-behavior:auto}.rings,.door{display:none}}
+@media(prefers-reduced-motion:reduce){.r{opacity:1;transform:none;transition:none}.rule{transform:none;transition:none}html{scroll-behavior:auto}}
 .post-nav{padding:6rem var(--g) 0}
 .post-nav a{color:var(--mute);font:500 .8125rem/1.4 var(--sans);letter-spacing:.08em;text-transform:uppercase}
 .post article.post{padding:2rem var(--g) 6rem;max-width:48rem;margin-inline:auto}
@@ -189,7 +217,7 @@ footer{display:flex;justify-content:space-between;gap:1rem;padding-block:2rem ca
 
 <main id='top'>
 <section class='hero wrap'>
-  <div aria-hidden='true' class='rings' id='rings'></div>
+  <div aria-hidden="true" class="rings" id="rings"><svg id="rg" viewBox="-200 -200 400 400"></svg></div>
   <p class='l r' style='--i:1'>Pengrajin kayu,</p>
   <h1 class='d r' style='--i:2'>Sentuhan waktu dan keheningan <em>proses</em>.</h1>
   <div class='foot l r' style='--i:4'><span>Jati &amp; mahoni</span><span>Sejak 1995</span></div>
@@ -211,7 +239,23 @@ footer{display:flex;justify-content:space-between;gap:1rem;padding-block:2rem ca
   <div class='rule'></div>
   <div class='cols' style='margin-top:clamp(3rem,6vw,5rem)'>
     <div><p class='l r'>Tentang</p>
-    <div aria-hidden='true' class='door r' id='door'></div></div>
+    <div class="door r" aria-hidden="true"><svg viewBox="0 0 160 224">
+      <defs><linearGradient id="gl" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#e9bd72" stop-opacity=".6"/><stop offset="1" stop-color="#e9bd72" stop-opacity=".04"/></linearGradient></defs>
+      <path pathLength="1" style="--i:0" d="M8 214H132"/>
+      <path class="glow" d="M28 18H112V214H28Z" opacity="0"><animate class="sw" attributeName="opacity" dur="9s" begin="indefinite" repeatCount="indefinite" calcMode="spline" keyTimes="0;.12;.30;.36;.70;.86;1" keySplines="0 0 1 1;.45 0 .2 1;.3 0 .3 1;0 0 1 1;.5 0 .3 1;0 0 1 1" values="0.00;0.00;0.94;0.92;0.92;0.00;0.00"/></path>
+      <path pathLength="1" style="--i:0" d="M20 214V10H120V214"/>
+      <path class="leaf" pathLength="1" style="--i:1" d="M28 18L112 18L112 214L28 214Z"><animate class="sw" attributeName="d" dur="9s" begin="indefinite" repeatCount="indefinite" calcMode="spline" keyTimes="0;.12;.30;.36;.70;.86;1" keySplines="0 0 1 1;.45 0 .2 1;.3 0 .3 1;0 0 1 1;.5 0 .3 1;0 0 1 1" values="M28.0 18.0L112.0 18.0L112.0 214.0L28.0 214.0Z;M28.0 18.0L112.0 18.0L112.0 214.0L28.0 214.0Z;M28.0 18.0L39.7 42.3L39.7 189.7L28.0 214.0Z;M28.0 18.0L48.3 41.8L48.3 190.2L28.0 214.0Z;M28.0 18.0L48.3 41.8L48.3 190.2L28.0 214.0Z;M28.0 18.0L112.0 18.0L112.0 214.0L28.0 214.0Z;M28.0 18.0L112.0 18.0L112.0 214.0L28.0 214.0Z"/></path>
+      <path pathLength="1" style="--i:2" d="M40 32L100 32L100 98L40 98Z"><animate class="sw" attributeName="d" dur="9s" begin="indefinite" repeatCount="indefinite" calcMode="spline" keyTimes="0;.12;.30;.36;.70;.86;1" keySplines="0 0 1 1;.45 0 .2 1;.3 0 .3 1;0 0 1 1;.5 0 .3 1;0 0 1 1" values="M40.0 32.0L100.0 32.0L100.0 98.0L40.0 98.0Z;M40.0 32.0L100.0 32.0L100.0 98.0L40.0 98.0Z;M29.7 35.0L38.0 49.8L38.0 101.8L29.7 98.6Z;M30.9 34.9L45.4 49.5L45.4 101.7L30.9 98.6Z;M30.9 34.9L45.4 49.5L45.4 101.7L30.9 98.6Z;M40.0 32.0L100.0 32.0L100.0 98.0L40.0 98.0Z;M40.0 32.0L100.0 32.0L100.0 98.0L40.0 98.0Z"/></path>
+      <path pathLength="1" style="--i:3" d="M40 112L100 112L100 198L40 198Z"><animate class="sw" attributeName="d" dur="9s" begin="indefinite" repeatCount="indefinite" calcMode="spline" keyTimes="0;.12;.30;.36;.70;.86;1" keySplines="0 0 1 1;.45 0 .2 1;.3 0 .3 1;0 0 1 1;.5 0 .3 1;0 0 1 1" values="M40.0 112.0L100.0 112.0L100.0 198.0L40.0 198.0Z;M40.0 112.0L100.0 112.0L100.0 198.0L40.0 198.0Z;M29.7 112.1L38.0 112.8L38.0 180.6L29.7 195.1Z;M30.9 112.1L45.4 112.8L45.4 181.0L30.9 195.2Z;M30.9 112.1L45.4 112.8L45.4 181.0L30.9 195.2Z;M40.0 112.0L100.0 112.0L100.0 198.0L40.0 198.0Z;M40.0 112.0L100.0 112.0L100.0 198.0L40.0 198.0Z"/></path>
+      <path class="soft" pathLength="1" style="--i:4" d="M46 38L94 38L94 92L46 92Z"><animate class="sw" attributeName="d" dur="9s" begin="indefinite" repeatCount="indefinite" calcMode="spline" keyTimes="0;.12;.30;.36;.70;.86;1" keySplines="0 0 1 1;.45 0 .2 1;.3 0 .3 1;0 0 1 1;.5 0 .3 1;0 0 1 1" values="M46.0 38.0L94.0 38.0L94.0 92.0L46.0 92.0Z;M46.0 38.0L94.0 38.0L94.0 92.0L46.0 92.0Z;M30.5 42.1L37.2 53.2L37.2 96.7L30.5 93.3Z;M32.4 42.1L44.0 52.9L44.0 96.6L32.4 93.2Z;M32.4 42.1L44.0 52.9L44.0 96.6L32.4 93.2Z;M46.0 38.0L94.0 38.0L94.0 92.0L46.0 92.0Z;M46.0 38.0L94.0 38.0L94.0 92.0L46.0 92.0Z"/></path>
+      <path class="soft" pathLength="1" style="--i:5" d="M46 118L94 118L94 192L46 192Z"><animate class="sw" attributeName="d" dur="9s" begin="indefinite" repeatCount="indefinite" calcMode="spline" keyTimes="0;.12;.30;.36;.70;.86;1" keySplines="0 0 1 1;.45 0 .2 1;.3 0 .3 1;0 0 1 1;.5 0 .3 1;0 0 1 1" values="M46.0 118.0L94.0 118.0L94.0 192.0L46.0 192.0Z;M46.0 118.0L94.0 118.0L94.0 192.0L46.0 192.0Z;M30.5 117.9L37.2 117.6L37.2 177.2L30.5 188.0Z;M32.4 117.9L44.0 117.6L44.0 177.5L32.4 188.0Z;M32.4 117.9L44.0 117.6L44.0 177.5L32.4 188.0Z;M46.0 118.0L94.0 118.0L94.0 192.0L46.0 192.0Z;M46.0 118.0L94.0 118.0L94.0 192.0L46.0 192.0Z"/></path>
+      <path pathLength="1" style="--i:6" d="M106 122L106 146"><animate class="sw" attributeName="d" dur="9s" begin="indefinite" repeatCount="indefinite" calcMode="spline" keyTimes="0;.12;.30;.36;.70;.86;1" keySplines="0 0 1 1;.45 0 .2 1;.3 0 .3 1;0 0 1 1;.5 0 .3 1;0 0 1 1" values="M106.0 122.0L106.0 146.0;M106.0 122.0L106.0 146.0;M38.9 120.6L38.9 139.1;M46.9 120.6L46.9 139.2;M46.9 120.6L46.9 139.2;M106.0 122.0L106.0 146.0;M106.0 122.0L106.0 146.0"/></path>
+      <circle pathLength="1" style="--i:6" cx="106" cy="134" r="2.6"><animate class="sw" attributeName="cx" dur="9s" begin="indefinite" repeatCount="indefinite" calcMode="spline" keyTimes="0;.12;.30;.36;.70;.86;1" keySplines="0 0 1 1;.45 0 .2 1;.3 0 .3 1;0 0 1 1;.5 0 .3 1;0 0 1 1" values="106.0;106.0;38.9;46.9;46.9;106.0;106.0"/><animate class="sw" attributeName="cy" dur="9s" begin="indefinite" repeatCount="indefinite" calcMode="spline" keyTimes="0;.12;.30;.36;.70;.86;1" keySplines="0 0 1 1;.45 0 .2 1;.3 0 .3 1;0 0 1 1;.5 0 .3 1;0 0 1 1" values="134.0;134.0;129.9;129.9;129.9;134.0;134.0"/></circle>
+      <path pathLength="1" style="--i:7" d="M142 10V214"/>
+      <path pathLength="1" style="--i:8" d="M137 10H147M137 214H147"/>
+      <path class="scan" d="M137 0H147"/>
+      <text transform="translate(155 112) rotate(90)" text-anchor="middle">200 CM</text>
+    </svg></div></div>
     <div>
       <h2 class='t r'>Usaha kayu keluarga yang tumbuh dari kusen dan pintu.</h2>
       <p class='r' style='--i:1'>CMTO merawat jati dan mahoni dari gambar kerja hingga finishing akhir, membentuk pintu, kusen, dan furnitur yang kini menghuni berbagai kota hingga negara tetangga. Ketelitian yang sabar dan khidmat inilah yang menanamkan daya hidup pada tiap seratnya&#8212;agar ia mampu tegak berdiri hingga puluhan tahun menantang waktu.</p>
@@ -242,8 +286,6 @@ footer{display:flex;justify-content:space-between;gap:1rem;padding-block:2rem ca
 
 <footer class='wrap l'><span>&#169; CMTO</span><span>Jaten, Karanganyar</span></footer>
 
-<script src='https://cdn.jsdelivr.net/npm/lottie-web@5.12.2/build/player/lottie_svg.min.js'></script>
-
 <script>//<![CDATA[
 
 (function(){
@@ -270,29 +312,43 @@ footer{display:flex;justify-content:space-between;gap:1rem;padding-block:2rem ca
 
 //]]></script>
 
-<!-- Ilustrasi: 2 animasi Lottie (ganti file JSON ini kapan saja tanpa sentuh template) -->
+<!-- Ilustrasi hero: lingkar tahun kayu digambar garis tipis -->
 <script>//<![CDATA[
 
 (function(){
-  if(typeof lottie==='undefined')return;
-  var calm=matchMedia('(prefers-reduced-motion:reduce)').matches;
-  if(calm)return; // CSS sudah menyembunyikan .rings/.door, tidak perlu load animasi
+  var g=document.getElementById('rg'),box=document.getElementById('rings'),out='',i,k;
+  function ring(r,ph,amp){var d='',n=120,a,rr;for(k=0;k<=n;k++){a=k/n*Math.PI*2;rr=r+Math.sin(a*3+ph)*amp+Math.sin(a*5+ph*1.7)*amp*.5+Math.sin(a*2-ph)*amp*.6;d+=(k?'L':'M')+(Math.cos(a)*rr).toFixed(1)+' '+(Math.sin(a)*rr).toFixed(1)}return d+'Z'}
+  for(i=0;i<14;i++)out+='<path pathLength="1" d="'+ring(8+i*13.5,i*.55,1.2+i*.28)+'" style="--i:'+i+'" opacity="'+(.9-i*.045).toFixed(2)+'"/>';
+  var c='M0 0';for(k=1;k<=30;k++)c+=' L'+(k*6.2).toFixed(1)+' '+(Math.sin(k*.7)*3.2+k*.18).toFixed(1);
+  out+='<path class="crack" pathLength="1" d="'+c+'" style="--i:13"/>';
+  g.innerHTML=out;
+  requestAnimationFrame(function(){requestAnimationFrame(function(){box.classList.add('in')})});
+})();
 
-  var ringsBox=document.getElementById('rings');
-  if(ringsBox){
-    lottie.loadAnimation({container:ringsBox,renderer:'svg',loop:true,autoplay:true,
-      path:'https://cdn.jsdelivr.net/gh/woodroker/cmto@main/lottie/rings.json'});
-  }
-  var doorBox=document.getElementById('door');
-  if(doorBox){
-    var anim=lottie.loadAnimation({container:doorBox,renderer:'svg',loop:true,autoplay:false,
-      path:'https://cdn.jsdelivr.net/gh/woodroker/cmto@main/lottie/door.json'});
-    if('IntersectionObserver' in window){
-      var io=new IntersectionObserver(function(es){es.forEach(function(e){
-        if(e.isIntersecting){anim.play();io.unobserve(e.target)}})},{threshold:.3});
-      io.observe(doorBox);
-    } else anim.play();
-  }
+//]]></script>
+
+<!-- Ilustrasi Tentang: gambar kerja pintu 200 cm -->
+<script>//<![CDATA[
+
+(function(){
+  var d=document.querySelector('.door');if(!d||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+  function go(){setTimeout(function(){[].forEach.call(d.querySelectorAll('.sw'),function(a){try{a.beginElement()}catch(e){}})},3400)}
+  if(d.classList.contains('in'))go();else{var m=new MutationObserver(function(){if(d.classList.contains('in')){m.disconnect();go()}});m.observe(d,{attributes:true,attributeFilter:['class']})}
+})();
+
+//]]></script>
+
+<!-- Hover di layar sentuh: baris di tengah layar mendapat efek hover -->
+<script>//<![CDATA[
+
+(function(){
+  if(!matchMedia('(hover:none)').matches||!('IntersectionObserver' in window))return;
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){
+    var t=e.target;t.classList.toggle('hv',e.isIntersecting);
+    var ul=t.closest('.work ul');if(ul)ul.classList.toggle('hv-on',!!ul.querySelector('a.hv'));
+  })},{rootMargin:'-42% 0px -42% 0px',threshold:0});
+  function bind(){[].forEach.call(document.querySelectorAll('.writing .it,.work a'),function(el){if(!el.__hv){el.__hv=1;io.observe(el)}})}
+  bind();window.cmtoBindTouch=bind;
 })();
 
 //]]></script>
@@ -357,6 +413,7 @@ footer{display:flex;justify-content:space-between;gap:1rem;padding-block:2rem ca
       }).join('');
       picked.forEach(function(p){if(p.image){var im=new Image();im.src=p.image}});
       if(window.cmtoBindPreview)window.cmtoBindPreview();
+      if(window.cmtoBindTouch)window.cmtoBindTouch();
     })
     .catch(function(){ /* biarkan fallback statis */ });
 })();
